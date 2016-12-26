@@ -46,10 +46,23 @@ func (mj *Report) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	} else {
 		buf.WriteString(`null`)
 	}
-	buf.WriteString(`,"iplist":`)
-	if mj.IPList != nil {
+	buf.WriteString(`,"newiplist":`)
+	if mj.NewIPList != nil {
 		buf.WriteString(`[`)
-		for i, v := range mj.IPList {
+		for i, v := range mj.NewIPList {
+			if i != 0 {
+				buf.WriteString(`,`)
+			}
+			fflib.WriteJsonString(buf, string(v))
+		}
+		buf.WriteString(`]`)
+	} else {
+		buf.WriteString(`null`)
+	}
+	buf.WriteString(`,"oldiplist":`)
+	if mj.OldIPList != nil {
+		buf.WriteString(`[`)
+		for i, v := range mj.OldIPList {
 			if i != 0 {
 				buf.WriteString(`,`)
 			}
@@ -95,7 +108,9 @@ const (
 
 	ffj_t_Report_UUID
 
-	ffj_t_Report_IPList
+	ffj_t_Report_NewIPList
+
+	ffj_t_Report_OldIPList
 
 	ffj_t_Report_Ns
 
@@ -112,7 +127,9 @@ const (
 
 var ffj_key_Report_UUID = []byte("uuid")
 
-var ffj_key_Report_IPList = []byte("iplist")
+var ffj_key_Report_NewIPList = []byte("newiplist")
+
+var ffj_key_Report_OldIPList = []byte("oldiplist")
 
 var ffj_key_Report_Ns = []byte("ns")
 
@@ -193,17 +210,14 @@ mainparse:
 						goto mainparse
 					}
 
-				case 'i':
-
-					if bytes.Equal(ffj_key_Report_IPList, kn) {
-						currentKey = ffj_t_Report_IPList
-						state = fflib.FFParse_want_colon
-						goto mainparse
-					}
-
 				case 'n':
 
-					if bytes.Equal(ffj_key_Report_Ns, kn) {
+					if bytes.Equal(ffj_key_Report_NewIPList, kn) {
+						currentKey = ffj_t_Report_NewIPList
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffj_key_Report_Ns, kn) {
 						currentKey = ffj_t_Report_Ns
 						state = fflib.FFParse_want_colon
 						goto mainparse
@@ -216,7 +230,12 @@ mainparse:
 
 				case 'o':
 
-					if bytes.Equal(ffj_key_Report_OldHostname, kn) {
+					if bytes.Equal(ffj_key_Report_OldIPList, kn) {
+						currentKey = ffj_t_Report_OldIPList
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffj_key_Report_OldHostname, kn) {
 						currentKey = ffj_t_Report_OldHostname
 						state = fflib.FFParse_want_colon
 						goto mainparse
@@ -281,8 +300,14 @@ mainparse:
 					goto mainparse
 				}
 
-				if fflib.EqualFoldRight(ffj_key_Report_IPList, kn) {
-					currentKey = ffj_t_Report_IPList
+				if fflib.EqualFoldRight(ffj_key_Report_OldIPList, kn) {
+					currentKey = ffj_t_Report_OldIPList
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffj_key_Report_NewIPList, kn) {
+					currentKey = ffj_t_Report_NewIPList
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -313,8 +338,11 @@ mainparse:
 				case ffj_t_Report_UUID:
 					goto handle_UUID
 
-				case ffj_t_Report_IPList:
-					goto handle_IPList
+				case ffj_t_Report_NewIPList:
+					goto handle_NewIPList
+
+				case ffj_t_Report_OldIPList:
+					goto handle_OldIPList
 
 				case ffj_t_Report_Ns:
 					goto handle_Ns
@@ -421,9 +449,9 @@ handle_UUID:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_IPList:
+handle_NewIPList:
 
-	/* handler: uj.IPList type=[]string kind=slice quoted=false*/
+	/* handler: uj.NewIPList type=[]string kind=slice quoted=false*/
 
 	{
 
@@ -434,10 +462,10 @@ handle_IPList:
 		}
 
 		if tok == fflib.FFTok_null {
-			uj.IPList = nil
+			uj.NewIPList = nil
 		} else {
 
-			uj.IPList = make([]string, 0)
+			uj.NewIPList = make([]string, 0)
 
 			wantVal := true
 
@@ -485,7 +513,80 @@ handle_IPList:
 					}
 				}
 
-				uj.IPList = append(uj.IPList, v)
+				uj.NewIPList = append(uj.NewIPList, v)
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_OldIPList:
+
+	/* handler: uj.OldIPList type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			uj.OldIPList = nil
+		} else {
+
+			uj.OldIPList = make([]string, 0)
+
+			wantVal := true
+
+			for {
+
+				var v string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: v type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						v = string(string(outBuf))
+
+					}
+				}
+
+				uj.OldIPList = append(uj.OldIPList, v)
 				wantVal = false
 			}
 		}

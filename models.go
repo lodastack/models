@@ -2,7 +2,8 @@ package models
 
 type Report struct {
 	UUID        []string `json:"uuid"`
-	IPList      []string `json:"iplist"`
+	NewIPList   []string `json:"newiplist"`
+	OldIPList   []string `json:"oldiplist"`
 	Ns          []string `json:"ns"`
 	Version     string   `json:"version"`
 	NewHostname string   `json:"newhostname"`
