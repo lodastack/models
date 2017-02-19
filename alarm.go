@@ -24,3 +24,12 @@ type Alarm struct {
 	MD5         string `json:"md5"`
 	Default     string `json:"default"`
 }
+
+var (
+	VersionSep = "__"
+	DBPrefix   = "collect."
+
+	ThresHold = "threshold"
+	Relative  = "relative"
+	DeadMan   = "deadman"
+)
