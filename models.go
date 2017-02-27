@@ -6,6 +6,10 @@ type Report struct {
 	OldIPList   []string `json:"oldiplist"`
 	Ns          []string `json:"ns"`
 	Version     string   `json:"version"`
+	Commit      string   `json:"commit"`
+	Branch      string   `json:"branch"`
+	BuildTime   string   `json:"buildtime"`
+	GoVersion   string   `json:"goversion"`
 	NewHostname string   `json:"newhostname"`
 	OldHostname string   `json:"oldhostname"`
 	AgentType   string   `json:"agenttype"`
