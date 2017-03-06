@@ -1,5 +1,9 @@
 package models
 
+import (
+	"strings"
+)
+
 type Alarm struct {
 	ID          string `json:"_id"`
 	Enable      string `json:"enable"`
@@ -23,6 +27,13 @@ type Alarm struct {
 	Shift       string `json:"shift"`
 	MD5         string `json:"md5"`
 	Default     string `json:"default"`
+
+	HostBlockPeriod string `json:"hostblockperiod"`
+	HostBlockTimes  string `json:"hostblocktimes"`
+	NsBlockPeriod   string `json:"nsblockperiod"`
+	NsBlockTimes    string `json:"nsblocktimes"`
+
+	WebHooks string `json:"webhooks"`
 }
 
 var (
@@ -33,3 +44,12 @@ var (
 	Relative  = "relative"
 	DeadMan   = "deadman"
 )
+
+func SplitVersion(version string) []string {
+	return strings.Split(version, VersionSep)
+}
+
+func JoinVersion(ns, measurement, alarmID, MD5 string) string {
+	versionSplit := []string{ns, measurement, alarmID, MD5}
+	return strings.Join(versionSplit, VersionSep)
+}
