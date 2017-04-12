@@ -28,6 +28,9 @@ type Alarm struct {
 	MD5         string `json:"md5"`
 	Default     string `json:"default"`
 
+	STime string `json:"starttime"`
+	ETime string `json:"endtime"`
+
 	HostBlockPeriod string `json:"hostblockperiod"`
 	HostBlockTimes  string `json:"hostblocktimes"`
 	NsBlockPeriod   string `json:"nsblockperiod"`
