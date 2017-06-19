@@ -31,10 +31,8 @@ type Alarm struct {
 	STime string `json:"starttime"`
 	ETime string `json:"endtime"`
 
-	HostBlockPeriod string `json:"hostblockperiod"`
-	HostBlockTimes  string `json:"hostblocktimes"`
-	NsBlockPeriod   string `json:"nsblockperiod"`
-	NsBlockTimes    string `json:"nsblocktimes"`
+	BlockStep    string `json:"blockstep"`    // unit: minute
+	MaxBlockTime string `json:"maxblocktime"` // unit: minute
 
 	WebHooks string `json:"webhooks"`
 }
